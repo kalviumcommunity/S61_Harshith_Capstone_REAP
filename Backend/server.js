@@ -4,7 +4,13 @@ const port = 3000
 const mongoose = require('mongoose')
 require('dotenv').config()
 
+app.use(express.json())
+
 app.get('/', (req, res) => res.send('Hello World!'))
+
+app.post('/post', (req, res) => {
+  res.send(req.body)
+})
 
 app.listen(port, () => {
     console.log(`Example app listening at http://localhost:${port}`)
