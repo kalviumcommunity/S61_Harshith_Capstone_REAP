@@ -17,10 +17,9 @@ const noteSchema = new mongoose.Schema({
         type: String,
         enum: ['Plain Text', 'Markdown', 'Rich Text'],
         default: 'Plain Text'
-    },
-    timestamps: true
+    }
 });
 
-const NoteModel = mongoose.model('Note', noteSchema);
+const NoteModel = mongoose.model('Notes', noteSchema);
 
 module.exports = NoteModel;
