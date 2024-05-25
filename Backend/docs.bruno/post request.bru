@@ -1,0 +1,26 @@
+meta {
+  name: post request
+  type: http
+  seq: 3
+}
+
+post {
+  url: http://localhost:3000/notes/post
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+      "title": "Nothing",
+      "content": "Nothing",
+      "tags": [
+        "Nothing",
+        "Nothing",
+        "scope Karo",
+        "Venakamaala",
+        "Backside"
+      ],
+      "noteSystem": "Rich Text"
+    }
+}
