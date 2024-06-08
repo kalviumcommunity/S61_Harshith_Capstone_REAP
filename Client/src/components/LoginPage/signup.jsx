@@ -37,7 +37,7 @@ const RegistrationForm = () => {
     }
     try {
       await api.post('/register', { username, email, password });
-      navigate('/dashboard');
+      navigate('/login');
     } catch (error) {
       setError(error.response?.data || 'Registration failed');
     }
