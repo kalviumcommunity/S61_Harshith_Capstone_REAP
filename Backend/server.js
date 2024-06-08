@@ -5,8 +5,13 @@ const mongoose = require('mongoose')
 const noteRoutes = require('./routes')
 require('dotenv').config()
 const NoteModel = require('./Model/NoteSchema.js')
+const userRoutes = require('./routes/userRoutes.js')
+const cors = require('cors')
 
 app.use(express.json())
+app.use('/notes',noteRoutes);
+app.use(cors());
+app.use('/user',userRoutes);
 
 mongoose.connect(process.env.MONGO_URI).then(() => {
   console.log('Connected to MongoDB')
