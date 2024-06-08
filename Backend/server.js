@@ -1,31 +1,31 @@
-const express = require('express')
-const app = express()
-const port = 3000
-const mongoose = require('mongoose')
-const noteRoutes = require('./routes')
-require('dotenv').config()
-const NoteModel = require('./Model/NoteSchema.js')
-const userRoutes = require('./routes/userRoutes.js')
-const cors = require('cors')
+const express = require('express');
+const mongoose = require('mongoose');
+const cors = require('cors');
+const session = require('express-session');
+const passport = require('passport');
+require('dotenv').config();
 
-app.use(express.json())
-app.use('/notes',noteRoutes);
+const app = express();
+const port = 3000;
+
+const userRoutes = require('./routes/userRoutes');
+const passportConfig = require('./routes/passportConfig');
+
+
+
+app.use(express.json());
 app.use(cors());
-app.use('/user',userRoutes);
+app.use(session({ secret: process.env.JWT_SECRET, resave: false, saveUninitialized: true }));
+app.use(passport.initialize());
+app.use(passport.session());
+app.use(passportConfig);
 
-mongoose.connect(process.env.MONGO_URI).then(() => {
-  console.log('Connected to MongoDB')
-}).catch(err => {
-  console.log('Error connecting to MongoDB', err)
-})
+app.use('/user', userRoutes);
 
-app.use('/Notes', noteRoutes)
-
-app.get('/', async (req, res) => {
-  const content = await NoteModel.find()
-    res.json(content)
-})
+mongoose.connect(process.env.MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true })
+  .then(() => console.log('Connected to MongoDB'))
+  .catch(err => console.log('Error connecting to MongoDB', err));
 
 app.listen(port, () => {
-    console.log(`Example app listening at http://localhost:${port}`)
-})
+  console.log(`Server is running on port ${port}`);
+});
