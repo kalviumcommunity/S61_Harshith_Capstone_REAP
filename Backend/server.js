@@ -10,6 +10,7 @@ const port = 3000;
 
 const userRoutes = require('./routes/userRoutes');
 const passportConfig = require('./routes/passportConfig');
+const routes = require('./routes')
 
 
 
@@ -21,6 +22,7 @@ app.use(passport.session());
 app.use(passportConfig);
 
 app.use('/user', userRoutes);
+app.use('/notes', routes)
 
 mongoose.connect(process.env.MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true })
   .then(() => console.log('Connected to MongoDB'))
