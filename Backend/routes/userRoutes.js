@@ -37,7 +37,8 @@ router.post('/login', async (req, res) => {
   }
 
   const token = jwt.sign({ userId: user._id }, JWT_SECRET, { expiresIn: '24h' });
-  res.json({ token });
+  res.cookie('jwt', token, {httpOnly: true});
+  return res.json({ token });
 });
 
 module.exports = router;

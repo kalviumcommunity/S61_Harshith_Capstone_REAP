@@ -3,6 +3,7 @@ const mongoose = require('mongoose');
 const cors = require('cors');
 const session = require('express-session');
 const passport = require('passport');
+const cookieParser = require('cookie-parser')
 require('dotenv').config();
 
 const app = express();
@@ -20,6 +21,7 @@ app.use(session({ secret: process.env.JWT_SECRET, resave: false, saveUninitializ
 app.use(passport.initialize());
 app.use(passport.session());
 app.use(passportConfig);
+app.use(cookieParser())
 
 app.use('/user', userRoutes);
 app.use('/notes', routes)
