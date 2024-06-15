@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-d
 import SignUp from './components/LoginPage/signup' 
 import Landingpage from './components/LandingPage/Landingpage';
 import LoginForm from './components/LoginPage/login';
+import Dashboard from './components/dashboard'
 
 function App() {
 
@@ -12,6 +13,7 @@ function App() {
         <Route path='/' element={<Landingpage/>}/>
         <Route path='/register' element={<SignUp />} />
         <Route path='/login' element={<LoginForm />} />
+        <Route path='/dashboard' element={<Dashboard />} />
       </Routes>
     </Router>
   )

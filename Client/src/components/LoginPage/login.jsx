@@ -19,7 +19,6 @@ import Background from "../../assets/Background.svg";
 import LoginImg from "../../assets/login_img.svg";
 import { Link as RouterLink, useNavigate } from 'react-router-dom';
 import api from '../api';
-import { FcGoogle } from "react-icons/fc";
 
 const LoginForm = () => {
   const [email, setEmail] = useState('');
@@ -38,10 +37,6 @@ const LoginForm = () => {
     } catch (error) {
       setError(error.response?.data || 'Login failed');
     }
-  };
-
-  const handleGoogleLogin = () => {
-    window.location.href = "http://localhost:3000/auth/google";
   };
 
   return (
@@ -123,9 +118,6 @@ const LoginForm = () => {
                 Register
               </Link>
             </Text>
-            <Button onClick={handleGoogleLogin}>
-              <FcGoogle /> oogle
-            </Button>
           </Stack>
         </Box>
       </Flex>
