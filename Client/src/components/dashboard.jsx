@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { ChakraProvider, Box, VStack, IconButton, HStack, Spacer, Text, useToast, Image, Button, Modal, ModalOverlay, ModalContent, ModalHeader, ModalBody, ModalCloseButton, useDisclosure, Circle, Textarea } from "@chakra-ui/react";
+import { ChakraProvider, Box, VStack, IconButton, HStack, Spacer, Text, useToast, Image, Button, Textarea, Input, Modal, ModalOverlay, ModalContent, ModalHeader, ModalBody, ModalCloseButton, useDisclosure, Circle } from "@chakra-ui/react";
 import { AddIcon, DeleteIcon } from "@chakra-ui/icons";
 import axios from 'axios';
 
@@ -15,13 +15,13 @@ const Navbar = () => {
   const [items, setItems] = useState([]);
   const [activeItem, setActiveItem] = useState(null);
   const toast = useToast();
+  const token = localStorage.getItem('token');
   const newItem = { title: 'New Note', content: '' };
 
-
   useEffect(() => {
-    axios.get('http://localhost:3000/notes')
+    axios.get('http://localhost:3000/notes', { headers: { Authorization: `Bearer ${token}` } })
       .then(response => {
-        console.log('Fetched notes:', response.data); // Debugging line
+        console.log('Fetched notes:', response.data);
         const data = Array.isArray(response.data) ? response.data : [];
         setItems(data);
       })
@@ -38,24 +38,25 @@ const Navbar = () => {
   }, []);
 
   const handleNewItem = () => {
-    axios.post('http://localhost:3000/notes/post', newItem)
-  .then(response => {
-    console.log('Response from POST:', response.data);
-    setItems([...items, response.data]);
-    setActiveItem(response.data);
-    console.log('Created new note:', response.data);
-  })
-  .catch(error => {
-    console.error('Error creating note:', error);
-    toast({
-      title: "Error creating note",
-      description: "Unable to create a new note.",
-      status: "error",
-      duration: 3000,
-      isClosable: true,
-    });
-  });
+    const newNote = { title: newItem.title, content: newItem.content };
 
+    axios.post('http://localhost:3000/notes/post', newNote, { headers: { Authorization: `Bearer ${token}` } })
+      .then(response => {
+        console.log('Response from POST:', response.data);
+        setItems([...items, response.data]);
+        setActiveItem(response.data);
+        console.log('Created new note:', response.data);
+      })
+      .catch(error => {
+        console.error('Error creating note:', error);
+        toast({
+          title: "Error creating note",
+          description: "Unable to create a new note.",
+          status: "error",
+          duration: 3000,
+          isClosable: true,
+        });
+      });
   };
 
   const handleItemClick = (item) => {
@@ -63,7 +64,7 @@ const Navbar = () => {
   };
 
   const handleDeleteItem = (id) => {
-    axios.delete(`http://localhost:3000/notes/delete/${id}`)
+    axios.delete(`http://localhost:3000/notes/delete/${id}`, { headers: { Authorization: `Bearer ${token}` } })
       .then(() => {
         setItems(items.filter(item => item._id !== id));
         if (activeItem && activeItem._id === id) {
@@ -76,7 +77,7 @@ const Navbar = () => {
           duration: 3000,
           isClosable: true,
         });
-        console.log('Deleted note with id:', id); // Debugging line
+        console.log('Deleted note with id:', id);
       })
       .catch(error => {
         console.error('Error deleting note:', error);
@@ -94,10 +95,10 @@ const Navbar = () => {
     const updatedContent = e.target.value;
     const updatedItem = { ...activeItem, content: updatedContent };
     setActiveItem(updatedItem);
-    
+
     console.log('Updated item before sending to API:', updatedItem);
-  
-    axios.put(`http://localhost:3000/notes/update/${activeItem._id}`, updatedItem)
+
+    axios.put(`http://localhost:3000/notes/update/${activeItem._id}`, updatedItem, { headers: { Authorization: `Bearer ${token}` } })
       .then(response => {
         console.log('Response from update API:', response.data);
         setItems(items.map(item => (item._id === activeItem._id ? response.data : item)));
@@ -119,10 +120,10 @@ const Navbar = () => {
     const updatedTitle = e.target.value;
     const updatedItem = { ...activeItem, title: updatedTitle };
     setActiveItem(updatedItem);
-    
+
     console.log('Updated item before sending to API:', updatedItem);
-  
-    axios.put(`http://localhost:3000/notes/update/${activeItem._id}`, updatedItem)
+
+    axios.put(`http://localhost:3000/notes/update/${activeItem._id}`, updatedItem, { headers: { Authorization: `Bearer ${token}` } })
       .then(response => {
         console.log('Response from update API:', response.data);
         setItems(items.map(item => (item._id === activeItem._id ? response.data : item)));
@@ -183,21 +184,21 @@ const Navbar = () => {
           <Spacer />
         </VStack>
         <Box flex={1} p={4}>
-        <VStack align="start" w="100%">
+          <VStack align="start" w="100%">
             {activeItem ? (
               <>
-                <Textarea onChange={handleTitleChange}
-                  value={`${activeItem.title}`}
+                <Input
+                  value={activeItem.title}
+                  onChange={handleTitleChange}
                   placeholder='Title'
-                  
                   focusBorderColor="white"
                   resize="none"
                   border="none"
                   _focus={{ border: 'none' }}
-                  fontSize={"lg"} fontWeight="bold"> 
-                  </Textarea>
+                  fontSize={"lg"} fontWeight="bold"
+                />
                 <Textarea
-                 value={`${activeItem.content}`}
+                  value={activeItem.content}
                   onChange={handleContentChange}
                   size="sm"
                   placeholder="Type your note here..."
@@ -208,6 +209,9 @@ const Navbar = () => {
                   border="none"
                   _focus={{ border: 'none' }}
                 />
+                {activeItem.image && (
+                  <Image src={`http://localhost:3000/${activeItem.image}`} alt="Uploaded" mt={4} />
+                )}
               </>
             ) : (
               <Text>Select an item to display its content.</Text>
@@ -223,7 +227,7 @@ const Navbar = () => {
       <Box bg="white" display="flex" justifyContent="center" width="300px" p={2} border="1px solid black">
         <IconButton icon={<AddIcon />} aria-label="Add" size="lg" bg="white" border="2px solid black" onClick={handleNewItem} />
       </Box>
-     
+
       <Modal isOpen={isOpen} onClose={onClose}>
         <ModalOverlay />
         <ModalContent>
@@ -231,25 +235,25 @@ const Navbar = () => {
             <HStack spacing={4} alignItems="center" justifyContent="center">
               {[0, 1, 2].map((index) => (
                 <Circle
+                  key={index}
                   size="30px"
                   bg={selectedCircle === index ? 'yellow' : 'black'}
                   onClick={() => handleCircleClick(index)}
                   cursor="pointer"
-                  key={index}
                 />
               ))}
             </HStack>
-            <Box w={"100%"} display={"flex"} justifyContent={"space-around"}>
+            <Box w="100%" display="flex" justifyContent="space-around">
               <Text>1. Plain Text 2. Rich Text 3. Markdown</Text>
             </Box>
           </ModalHeader>
           <ModalCloseButton />
           <ModalBody>
-            <Box width={"100%"} border={"2px solid black "} display={"flex"} alignItems="center" justifyContent="center">
-              <Button variant={"normal"}><Image src={Rect1} boxSize="30px"/>Personal</Button> 
-              <Button variant={"normal"}><Image src={Rect2} boxSize="30px"/>Work</Button> 
-              <Button variant={"normal"}><Image src={Rect3} boxSize="30px"/>Hobbies</Button> 
-              <Button variant={"normal"}><Image src={Rect4} boxSize="30px"/>Essential</Button> 
+            <Box width="100%" border="2px solid black" display="flex" alignItems="center" justifyContent="center">
+              <Button variant="normal"><Image src={Rect1} boxSize="30px" />Personal</Button>
+              <Button variant="normal"><Image src={Rect2} boxSize="30px" />Work</Button>
+              <Button variant="normal"><Image src={Rect3} boxSize="30px" />Hobbies</Button>
+              <Button variant="normal"><Image src={Rect4} boxSize="30px" />Essential</Button>
             </Box>
           </ModalBody>
         </ModalContent>
