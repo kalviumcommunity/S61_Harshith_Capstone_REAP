@@ -1,7 +1,23 @@
+// routes.js
+
 const express = require("express");
+const multer = require("multer");
 const router = express.Router();
 const NoteModel = require("./Model/NoteSchema");
 const auth = require('./middleware/auth');
+
+// Multer storage configuration
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, 'uploads/'); // Uploads folder where files will be stored
+  },
+  filename: (req, file, cb) => {
+    cb(null, Date.now() + '-' + file.originalname); // Unique filename
+  }
+});
+
+// Multer upload configuration
+const upload = multer({ storage });
 
 // GET all notes
 router.get("/", auth, async (req, res) => {
@@ -26,7 +42,8 @@ router.get("/:id", auth, async (req, res) => {
   }
 });
 
-router.post('/post', auth, async (req, res) => {
+// POST a new note with image upload
+router.post("/post", auth, upload.single('image'), async (req, res) => {
   try {
     const image = req.file ? `/uploads/${req.file.filename}` : null;
     const newNote = new NoteModel({
@@ -44,21 +61,24 @@ router.post('/post', auth, async (req, res) => {
 });
 
 // PUT update a note by ID
-router.put('/update/:id', auth, async (req, res) => {
+router.put("/update/:id", auth, upload.single('image'), async (req, res) => {
   const noteId = req.params.id;
   const updateDataFromBody = req.body;
+
+  if (req.file) {
+    updateDataFromBody.image = `/uploads/${req.file.filename}`; // Update image path if uploaded
+  }
 
   try {
     const updatedNote = await NoteModel.findOneAndUpdate({ _id: noteId, userId: req.user.userId }, updateDataFromBody, { new: true });
     if (!updatedNote) {
-      return res.status(404).send('Note is unavailable');
+      return res.status(404).send("Note is unavailable");
     }
     res.send(updatedNote);
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
 });
-
 
 // DELETE a note by ID
 router.delete("/delete/:id", auth, async (req, res) => {
@@ -72,6 +92,13 @@ router.delete("/delete/:id", auth, async (req, res) => {
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
+});
+
+router.post('/upload', auth, upload.single('file'), (req, res) => {
+  if (!req.file) {
+    return res.status(400).send('No file uploaded');
+  }
+  res.send('File uploaded successfully');
 });
 
 module.exports = router;
