@@ -12,22 +12,33 @@ router.get("/", async (req, res) => {
   }
 });
 
-router.post("/post", async (req, res) => {
+router.get("/:id", async (req, res) => {
   try {
-    const content = await NoteModel.insertMany(req.body);
+    const content = await NoteModel.findById(req.params.id);
+    if (!content) {
+      return res.status(404).json({ message: "Note not found" });
+    }
     res.json(content);
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
 });
+ 
+router.post("/post", async (req, res) => {
+  try {
+    const newNote = await NoteModel.create(req.body); // Use create instead of insertMany for a single document
+    res.status(201).json(newNote);
+  } catch (err) {
+    console.error('Error creating note:', err);
+    res.status(500).json({ message: err.message });
+  }
+});
+
+
 router.put("/update/:id", async (req, res) => {
   const noteId = req.params.id;
   const updateDataFromBody = req.body;
 
-  const { error } = NoteSchema.validate(updateDataFromBody);
-  if (error) {
-    return res.status(400).send(error.details[0].message);
-  }
 
   try {
     const updatedNote = await NoteModel.findByIdAndUpdate(noteId, updateDataFromBody, { new: true });
@@ -39,6 +50,7 @@ router.put("/update/:id", async (req, res) => {
     res.status(500).json({ message: err.message });
   }
 });
+
 
 router.delete("/delete/:id",async (req,res)=>{
   const noteId = req.params.id;

@@ -1,6 +1,7 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { ChakraProvider, Box, VStack, IconButton, HStack, Spacer, Text, useToast, Image, Button, Modal, ModalOverlay, ModalContent, ModalHeader, ModalBody, ModalCloseButton, useDisclosure, Circle, Textarea } from "@chakra-ui/react";
 import { AddIcon, DeleteIcon } from "@chakra-ui/icons";
+import axios from 'axios';
 
 import LogoImg from '../assets/FooterLogo.svg';
 import CustomLogo from '../assets/Customize.svg';
@@ -14,11 +15,47 @@ const Navbar = () => {
   const [items, setItems] = useState([]);
   const [activeItem, setActiveItem] = useState(null);
   const toast = useToast();
+  const newItem = { title: 'New Note', content: '' };
+
+
+  useEffect(() => {
+    axios.get('http://localhost:3000/notes')
+      .then(response => {
+        console.log('Fetched notes:', response.data); // Debugging line
+        const data = Array.isArray(response.data) ? response.data : [];
+        setItems(data);
+      })
+      .catch(error => {
+        console.error('Error fetching notes:', error);
+        toast({
+          title: "Error fetching notes",
+          description: "Unable to fetch notes from the server.",
+          status: "error",
+          duration: 3000,
+          isClosable: true,
+        });
+      });
+  }, []);
 
   const handleNewItem = () => {
-    const newItem = { id: Date.now(), content: '' };
-    setItems([...items, newItem]);
-    setActiveItem(newItem);
+    axios.post('http://localhost:3000/notes/post', newItem)
+  .then(response => {
+    console.log('Response from POST:', response.data);
+    setItems([...items, response.data]);
+    setActiveItem(response.data);
+    console.log('Created new note:', response.data);
+  })
+  .catch(error => {
+    console.error('Error creating note:', error);
+    toast({
+      title: "Error creating note",
+      description: "Unable to create a new note.",
+      status: "error",
+      duration: 3000,
+      isClosable: true,
+    });
+  });
+
   };
 
   const handleItemClick = (item) => {
@@ -26,17 +63,81 @@ const Navbar = () => {
   };
 
   const handleDeleteItem = (id) => {
-    setItems(items.filter(item => item.id !== id));
-    if (activeItem && activeItem.id === id) {
-      setActiveItem(null);
-    }
-    toast({
-      title: "Item deleted.",
-      description: "The item has been deleted successfully.",
-      status: "success",
-      duration: 3000,
-      isClosable: true,
-    });
+    axios.delete(`http://localhost:3000/notes/delete/${id}`)
+      .then(() => {
+        setItems(items.filter(item => item._id !== id));
+        if (activeItem && activeItem._id === id) {
+          setActiveItem(null);
+        }
+        toast({
+          title: "Item deleted.",
+          description: "The item has been deleted successfully.",
+          status: "success",
+          duration: 3000,
+          isClosable: true,
+        });
+        console.log('Deleted note with id:', id); // Debugging line
+      })
+      .catch(error => {
+        console.error('Error deleting note:', error);
+        toast({
+          title: "Error deleting note",
+          description: "Unable to delete the note.",
+          status: "error",
+          duration: 3000,
+          isClosable: true,
+        });
+      });
+  };
+
+  const handleContentChange = (e) => {
+    const updatedContent = e.target.value;
+    const updatedItem = { ...activeItem, content: updatedContent };
+    setActiveItem(updatedItem);
+    
+    console.log('Updated item before sending to API:', updatedItem);
+  
+    axios.put(`http://localhost:3000/notes/update/${activeItem._id}`, updatedItem)
+      .then(response => {
+        console.log('Response from update API:', response.data);
+        setItems(items.map(item => (item._id === activeItem._id ? response.data : item)));
+        console.log('Items after update:', items);
+      })
+      .catch(error => {
+        console.error('Error updating note:', error);
+        toast({
+          title: "Error updating note",
+          description: "Unable to update the note.",
+          status: "error",
+          duration: 3000,
+          isClosable: true,
+        });
+      });
+  };
+
+  const handleTitleChange = (e) => {
+    const updatedTitle = e.target.value;
+    const updatedItem = { ...activeItem, title: updatedTitle };
+    setActiveItem(updatedItem);
+    
+    console.log('Updated item before sending to API:', updatedItem);
+  
+    axios.put(`http://localhost:3000/notes/update/${activeItem._id}`, updatedItem)
+      .then(response => {
+        console.log('Response from update API:', response.data);
+        setItems(items.map(item => (item._id === activeItem._id ? response.data : item)));
+        console.log('Items after update:', items);
+      })
+      .catch(error => {
+        console.error('Error updating note:', error);
+        toast({
+          title: "Error updating note",
+          description: "Unable to update the note.",
+          status: "error",
+          duration: 3000,
+          isClosable: true,
+        });
+      });
   };
 
   const { isOpen, onOpen, onClose } = useDisclosure();
@@ -44,12 +145,6 @@ const Navbar = () => {
 
   const handleCircleClick = (index) => {
     setSelectedCircle(index);
-  };
-
-  const handleContentChange = (e) => {
-    const updatedContent = e.target.value;
-    setActiveItem({ ...activeItem, content: updatedContent });
-    setItems(items.map(item => (item.id === activeItem.id ? { ...item, content: updatedContent } : item)));
   };
 
   return (
@@ -67,9 +162,9 @@ const Navbar = () => {
           borderRight="1px solid"
           border="1px solid black"
         >
-          {items.map(item => (
+          {Array.isArray(items) && items.map(item => (
             <Box
-              key={item.id}
+              key={item._id}
               w="300px"
               p={4}
               bg="yellow.200"
@@ -79,47 +174,41 @@ const Navbar = () => {
               alignItems="center"
               border="1px solid black"
             >
-              <Text onClick={() => handleItemClick(item)} cursor="pointer">
-                {item.content.split('\n')[0] || 'New Note'}
+              <Text onClick={() => handleItemClick(item)} cursor="pointer" fontWeight="bold">
+                {item.title || 'New Note'}
               </Text>
-              <IconButton icon={<DeleteIcon />} aria-label="Delete" variant="ghost" bg="#FFF1D0" onClick={() => handleDeleteItem(item.id)} />
+              <IconButton icon={<DeleteIcon />} aria-label="Delete" variant="ghost" bg="#FFF1D0" onClick={() => handleDeleteItem(item._id)} />
             </Box>
           ))}
           <Spacer />
         </VStack>
         <Box flex={1} p={4}>
-          <VStack align="start" w="100%">
+        <VStack align="start" w="100%">
             {activeItem ? (
-              <Textarea
-                value={activeItem.content}
-                onChange={handleContentChange}
-                size="sm"
-                placeholder="Type your note here..."
-                mt={2}
-                focusBorderColor="white"
-                height="60vh"
-                resize="none"
-                border="none"
-                _focus={{ border: 'none' }}
-                sx={{
-                  '::placeholder': {
-                    color: 'black',
-                    fontWeight: 'bold',
-                  },
-                  '::before': {
-                    content: `"${activeItem.content.split('\n')[0]}"`,
-                    display: 'block',
-                    fontWeight: 'bold',
-                  },
-                  '::after': {
-                    content: `"${activeItem.content.split('\n').slice(1).join('\n')}"`,
-                    display: 'block',
-                  },
-                  '::first-line': {
-                    fontWeight: 'bold',
-                  },
-                }}
-              />
+              <>
+                <Textarea onChange={handleTitleChange}
+                  value={`${activeItem.title}`}
+                  placeholder='Title'
+                  
+                  focusBorderColor="white"
+                  resize="none"
+                  border="none"
+                  _focus={{ border: 'none' }}
+                  fontSize={"lg"} fontWeight="bold"> 
+                  </Textarea>
+                <Textarea
+                 value={`${activeItem.content}`}
+                  onChange={handleContentChange}
+                  size="sm"
+                  placeholder="Type your note here..."
+                  mt={2}
+                  focusBorderColor="white"
+                  height="60vh"
+                  resize="none"
+                  border="none"
+                  _focus={{ border: 'none' }}
+                />
+              </>
             ) : (
               <Text>Select an item to display its content.</Text>
             )}
@@ -150,13 +239,9 @@ const Navbar = () => {
                 />
               ))}
             </HStack>
-             <Box w={"100%"} display={"flex"} justifyContent={"space-around"}>
-             <Text>
-             1. Plain Text
-              2. Rich Text
-              3. Markdown
-             </Text>
-             </Box>
+            <Box w={"100%"} display={"flex"} justifyContent={"space-around"}>
+              <Text>1. Plain Text 2. Rich Text 3. Markdown</Text>
+            </Box>
           </ModalHeader>
           <ModalCloseButton />
           <ModalBody>
