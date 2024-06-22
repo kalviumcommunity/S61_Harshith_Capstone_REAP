@@ -3,11 +3,9 @@ const mongoose = require('mongoose');
 const noteSchema = new mongoose.Schema({
     title: {
         type: String,
-        required: true
     },
     content: {
         type: String,
-        required: true
     },
     tags: {
         type: [String],
@@ -17,7 +15,13 @@ const noteSchema = new mongoose.Schema({
         type: String,
         enum: ['Plain Text', 'Markdown', 'Rich Text'],
         default: 'Plain Text'
-    }
+    },
+    // userId: {
+    //     type: mongoose.Schema.Types.ObjectId,
+    //     ref: 'User',
+    //     required: true
+    // }
+
 });
 
 const NoteModel = mongoose.model('Notes', noteSchema);

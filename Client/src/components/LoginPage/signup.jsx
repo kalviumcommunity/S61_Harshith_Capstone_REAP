@@ -19,6 +19,7 @@ import Background from "../../assets/Background.svg";
 import RegisterImg from "../../assets/register_img.svg";
 import { Link as RouterLink, useNavigate } from 'react-router-dom';
 import api from '../api';
+import { FcGoogle } from "react-icons/fc";
 
 const RegistrationForm = () => {
   const [username, setUsername] = useState('');
@@ -41,6 +42,10 @@ const RegistrationForm = () => {
     } catch (error) {
       setError(error.response?.data || 'Registration failed');
     }
+  };
+
+  const handleGoogleLogin = () => {
+    window.location.href = "http://localhost:3000/auth/google";
   };
 
   return (
@@ -136,6 +141,9 @@ const RegistrationForm = () => {
                 Log in
               </Link>
             </Text>
+            <Button onClick={handleGoogleLogin}>
+              <FcGoogle /> oogle
+            </Button>
           </Stack>
         </Box>
       </Flex>
