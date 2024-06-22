@@ -12,12 +12,14 @@ const port = 3000;
 const userRoutes = require('./routes/userRoutes');
 const passportConfig = require('./routes/passportConfig');
 const routes = require('./routes')
+const path = require('path');
 
 
 
 
 app.use(express.json());
 app.use(cors());
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 app.use(session({ secret: process.env.JWT_SECRET, resave: false, saveUninitialized: true }));
 app.use(passport.initialize());
 app.use(passport.session());
