@@ -16,12 +16,14 @@ const noteSchema = new mongoose.Schema({
         enum: ['Plain Text', 'Markdown', 'Rich Text'],
         default: 'Plain Text'
     },
-    // userId: {
-    //     type: mongoose.Schema.Types.ObjectId,
-    //     ref: 'User',
-    //     required: true
-    // }
-
+    userId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User',
+        required: true
+    },
+    image: {
+         type: String ,
+    },
 });
 
 const NoteModel = mongoose.model('Notes', noteSchema);

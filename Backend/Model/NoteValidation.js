@@ -5,6 +5,7 @@ const noteSchema = Joi.object({
     content: Joi.string(),
     tags: Joi.array().items(Joi.string()),
     noteSystem: Joi.string().valid('Plain Text', 'Markdown', 'Rich Text').default('Plain Text'),
+    image: Joi.string().uri().optional(),
 });
 
 module.exports = noteSchema;

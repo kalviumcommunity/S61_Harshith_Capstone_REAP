@@ -15,6 +15,7 @@ const routes = require('./routes')
 
 
 
+
 app.use(express.json());
 app.use(cors());
 app.use(session({ secret: process.env.JWT_SECRET, resave: false, saveUninitialized: true }));
