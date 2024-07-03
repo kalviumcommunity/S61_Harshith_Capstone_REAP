@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import axios from 'axios';
 import {
   ChakraProvider,
@@ -179,6 +179,7 @@ const Navbar = () => {
 
   const handleContentChange = (e) => {
     const updatedContent = { ...activeItem, content: e.target.value };
+    setActiveItem(updatedContent);
     updateItem(updatedContent);
   };
 
