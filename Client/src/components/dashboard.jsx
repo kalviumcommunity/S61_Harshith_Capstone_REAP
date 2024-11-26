@@ -37,8 +37,13 @@ const Navbar = () => {
   const [activeItem, setActiveItem] = useState(null);
   const [selectedFile, setSelectedFile] = useState(null);
   const toast = useToast();
-  const token = localStorage.getItem('token');
+  let token = localStorage.getItem('token');
   const newItem = { title: 'New Note', content: '' };
+
+  const urlParams = new URLSearchParams(window.location.search);
+  const googleToken = urlParams.get("token");
+
+  googleToken ? token = googleToken : token
 
   useEffect(() => {
     fetchNotes();
