@@ -45,7 +45,7 @@ const RegistrationForm = () => {
   };
 
   const handleGoogleLogin = () => {
-    window.location.href = "http://localhost:3000/auth/google";
+    window.location.href = "https://s61-harshith-capstone-reap.onrender.com/auth/google";
   };
 
   return (

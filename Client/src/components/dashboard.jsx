@@ -46,7 +46,7 @@ const Navbar = () => {
 
   const fetchNotes = () => {
     axios
-      .get('http://localhost:3000/notes', { headers: { Authorization: `Bearer ${token}` } })
+      .get('https://s61-harshith-capstone-reap.onrender.com/notes', { headers: { Authorization: `Bearer ${token}` } })
       .then((response) => {
         console.log('Fetched notes:', response.data);
         setItems(response.data);
@@ -72,7 +72,7 @@ const Navbar = () => {
     }
 
     axios
-      .post('http://localhost:3000/notes/post', formData, {
+      .post('https://s61-harshith-capstone-reap.onrender.com/notes/post', formData, {
         headers: { Authorization: `Bearer ${token}` },
       })
       .then((response) => {
@@ -114,7 +114,7 @@ const Navbar = () => {
     formData.append('image', selectedFile);
 
     axios
-      .put(`http://localhost:3000/notes/update/${activeItem._id}`, formData, {
+      .put(`https://s61-harshith-capstone-reap.onrender.com/notes/update/${activeItem._id}`, formData, {
         headers: { Authorization: `Bearer ${token}` },
       })
       .then((response) => {
@@ -148,7 +148,7 @@ const Navbar = () => {
 
   const handleDeleteItem = (id) => {
     axios
-      .delete(`http://localhost:3000/notes/delete/${id}`, {
+      .delete(`https://s61-harshith-capstone-reap.onrender.com/notes/delete/${id}`, {
         headers: { Authorization: `Bearer ${token}` },
       })
       .then(() => {
@@ -185,7 +185,7 @@ const Navbar = () => {
 
   const updateItem = (updatedItem) => {
     axios
-      .put(`http://localhost:3000/notes/update/${updatedItem._id}`, updatedItem, {
+      .put(`https://s61-harshith-capstone-reap.onrender.com/notes/update/${updatedItem._id}`, updatedItem, {
         headers: { Authorization: `Bearer ${token}` },
       })
       .then((response) => {
@@ -241,7 +241,7 @@ const Navbar = () => {
               >
                 {item.image ? (
                   <Image
-                    src={`http://localhost:3000${item.image}`}
+                    src={`https://s61-harshith-capstone-reap.onrender.com${item.image}`}
                     alt="Note Thumbnail"
                     boxSize="50px"
                     borderRadius="full"
