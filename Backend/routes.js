@@ -1,5 +1,3 @@
-// routes.js
-
 const express = require("express");
 const multer = require("multer");
 const router = express.Router();
@@ -22,6 +20,7 @@ const upload = multer({ storage });
 // GET all notes
 router.get("/", auth, async (req, res) => {
   try {
+    // Use req.user.userId to fetch notes
     const content = await NoteModel.find({ userId: req.user.userId });
     res.json(content);
   } catch (err) {
@@ -50,7 +49,7 @@ router.post("/post", auth, upload.single('image'), async (req, res) => {
       title: req.body.title,
       content: req.body.content,
       image,
-      userId: req.user.userId
+      userId: req.user.userId  // Ensure userId is correctly assigned
     });
     await newNote.save();
     res.status(201).json(newNote);
@@ -70,9 +69,10 @@ router.put("/update/:id", auth, upload.single('image'), async (req, res) => {
   }
 
   try {
+    // Make sure the note is updated by the correct user
     const updatedNote = await NoteModel.findOneAndUpdate({ _id: noteId, userId: req.user.userId }, updateDataFromBody, { new: true });
     if (!updatedNote) {
-      return res.status(404).send("Note is unavailable");
+      return res.status(404).send("Note is unavailable or you don't have permission to update it.");
     }
     res.send(updatedNote);
   } catch (err) {
@@ -84,9 +84,10 @@ router.put("/update/:id", auth, upload.single('image'), async (req, res) => {
 router.delete("/delete/:id", auth, async (req, res) => {
   const noteId = req.params.id;
   try {
-    const deletedNote = await NoteModel.findByIdAndDelete(noteId);
+    // Ensure the user is deleting their own note
+    const deletedNote = await NoteModel.findOneAndDelete({ _id: noteId, userId: req.user.userId });
     if (!deletedNote) {
-      return res.status(404).send("Note is unavailable");
+      return res.status(404).send("Note is unavailable or you don't have permission to delete it.");
     }
     res.send(deletedNote);
   } catch (err) {
@@ -94,6 +95,7 @@ router.delete("/delete/:id", auth, async (req, res) => {
   }
 });
 
+// Route for uploading a file without creating a note
 router.post('/upload', auth, upload.single('file'), (req, res) => {
   if (!req.file) {
     return res.status(400).send('No file uploaded');
