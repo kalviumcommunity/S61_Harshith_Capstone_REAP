@@ -72,11 +72,11 @@ app.get(
 app.get(
   "/auth/google/callback",
   passport.authenticate("google", {
-    failureRedirect: "https://client-an8wgi3ai-harshith-amaravathis-projects.vercel.app/login",
+    failureRedirect: "https://client-chi-ten-36.vercel.app/login",
   }),
   (req, res) => {
     // Send JWT token to client
-    res.redirect(`https://client-an8wgi3ai-harshith-amaravathis-projects.vercel.app/dashboard`);
+    res.redirect(`https://client-chi-ten-36.vercel.app/dashboard`);
   }
 );
 
