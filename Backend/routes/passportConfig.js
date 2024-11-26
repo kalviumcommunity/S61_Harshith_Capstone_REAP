@@ -13,7 +13,7 @@ passport.use(
     {
       clientID: process.env.GOOGLE_CLIENT_ID,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-      callbackURL: "http://localhost:3000/auth/google/callback",
+      callbackURL: "https://s61-harshith-capstone-reap.onrender.com/auth/google/callback",
     },
     async (accessToken, refreshToken, profile, done) => {
       try {
@@ -72,11 +72,11 @@ app.get(
 app.get(
   "/auth/google/callback",
   passport.authenticate("google", {
-    failureRedirect: "http://localhost:5173/login",
+    failureRedirect: "https://client-an8wgi3ai-harshith-amaravathis-projects.vercel.app/login",
   }),
   (req, res) => {
     // Send JWT token to client
-    res.redirect(`http://localhost:5173/dashboard`);
+    res.redirect(`https://client-an8wgi3ai-harshith-amaravathis-projects.vercel.app/dashboard`);
   }
 );
 
