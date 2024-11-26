@@ -75,7 +75,7 @@ app.get(
     failureRedirect: "https://client-chi-ten-36.vercel.app/login",
   }),
   (req, res) => {
-    const token = req.user
+    const { token } = req.user
     // Send JWT token to client
     res.redirect(`https://client-chi-ten-36.vercel.app/dashboard?token=${token}`);
   }
